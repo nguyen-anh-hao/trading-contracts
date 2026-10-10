@@ -5,7 +5,7 @@ package gateway;
 import "common/decimal.proto";
 import "common/enums.proto";
 
-option go_package = "github.com/exchange/trading-system/generated/go/gateway;gateway";
+option go_package = "github.com/nguyen-anh-hao/trading-contracts/generated/go/gateway;gateway";
 option java_package = "com.exchange.gateway";
 option java_multiple_files = true;
 option java_outer_classname = "GatewayApiProto";

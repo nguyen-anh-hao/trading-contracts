@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package common;
 
-option go_package = "github.com/exchange/trading-system/generated/go/common;common";
+option go_package = "github.com/nguyen-anh-hao/trading-contracts/generated/go/common;common";
 option java_package = "com.exchange.common";
 option java_multiple_files = true;
 option java_outer_classname = "EnumsProto";

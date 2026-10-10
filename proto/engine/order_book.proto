@@ -5,7 +5,7 @@ package engine;
 import "common/decimal.proto";
 import "common/enums.proto";
 
-option go_package = "github.com/exchange/trading-system/generated/go/engine;engine";
+option go_package = "github.com/nguyen-anh-hao/trading-contracts/generated/go/engine;engine";
 option java_package = "com.exchange.engine";
 option java_multiple_files = true;
 option java_outer_classname = "OrderBookProto";
