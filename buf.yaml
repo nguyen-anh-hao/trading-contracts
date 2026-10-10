@@ -1,11 +1,11 @@
 version: v2
-breaking:
-  use:
-    - FILE
+modules:
+  - path: proto
 lint:
   use:
     - DEFAULT
   except:
     - PACKAGE_VERSION_SUFFIX
-  ignore:
-    - generated
+breaking:
+  use:
+    - FILE
