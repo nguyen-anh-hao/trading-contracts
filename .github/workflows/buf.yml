@@ -15,10 +15,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - uses: bufbuild/buf-lint-action@v1
-        with:
-          input: 'proto'
       - uses: bufbuild/buf-breaking-action@v1
         with:
-          input: 'proto'
           against: 'https://github.com/${{ github.repository }}.git#branch=main'
-

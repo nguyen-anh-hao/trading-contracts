@@ -3,7 +3,7 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: github.com/exchange/trading-system/generated/go
+      value: github.com/nguyen-anh-hao/trading-contracts/generated/go
 plugins:
   # Go
   - remote: buf.build/protocolbuffers/go
