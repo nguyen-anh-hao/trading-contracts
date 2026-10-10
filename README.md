@@ -48,3 +48,4 @@ buf generate
 | **v1.1.0** | **Binary gRPC Stubs** | Package versioning (`package engine.v1;`), gRPC service stubs generated directly into language artifact registries (GHCR / GitHub Packages / Go modules). |
 | **v1.2.0** | **High-Throughput Event Streaming** | Introduce schema envelopes for Kafka / Redpanda: `TradeExecutedEvent`, `OrderRejectedEvent`, `OrderBookSnapshotEvent`. Nanosecond-resolution timestamp formatting (`timestamp_ns`). |
 | **v2.0.0** | **Ultra-Low Latency / Zero-Copy** | Transition hot trading paths (Matching & Risk) to zero-copy memory layout specifications (e.g. SBE - Simple Binary Encoding or FlatBuffers specifications) for kernel-bypass / shared-memory IPC. |
+
