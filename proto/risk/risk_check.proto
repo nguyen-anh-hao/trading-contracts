@@ -15,9 +15,9 @@ service RiskService {
   // Pre-trade check: validates margin/buying-power and freezes funds.
   rpc CheckOrder(CheckOrderRequest) returns (CheckOrderResponse);
   // Reserve (freeze) funds for an accepted order.
-  rpc ReserveBalance(ReserveRequest) returns (ReserveResponse);
+  rpc ReserveBalance(ReserveBalanceRequest) returns (ReserveBalanceResponse);
   // Release frozen funds when an order is cancelled or reduced.
-  rpc ReleaseBalance(ReleaseRequest) returns (ReleaseResponse);
+  rpc ReleaseBalance(ReleaseBalanceRequest) returns (ReleaseBalanceResponse);
   // Apply a settled execution to the shadow balances.
   rpc ApplyTrade(ApplyTradeRequest) returns (ApplyTradeResponse);
   // Read current balances for an account.
@@ -39,7 +39,7 @@ message CheckOrderResponse {
   common.Decimal buying_power = 3;
 }
 
-message ReserveRequest {
+message ReserveBalanceRequest {
   uint64 account_id = 1;
   string symbol = 2;
   common.OrderSide side = 3;
@@ -47,12 +47,12 @@ message ReserveRequest {
   common.Decimal quantity = 5;
 }
 
-message ReserveResponse {
+message ReserveBalanceResponse {
   bool success = 1;
   string reason = 2;
 }
 
-message ReleaseRequest {
+message ReleaseBalanceRequest {
   uint64 account_id = 1;
   string symbol = 2;
   common.OrderSide side = 3;
@@ -60,7 +60,7 @@ message ReleaseRequest {
   common.Decimal quantity = 5;
 }
 
-message ReleaseResponse {
+message ReleaseBalanceResponse {
   bool success = 1;
 }
 

@@ -3,7 +3,6 @@ syntax = "proto3";
 package ledger;
 
 import "common/decimal.proto";
-import "common/enums.proto";
 
 option go_package = "github.com/nguyen-anh-hao/trading-contracts/generated/go/ledger;ledger";
 option java_package = "com.exchange.ledger";
@@ -13,8 +12,8 @@ option java_outer_classname = "SettlementProto";
 // Settlement / double-entry ledger contract consumed by the Settlement service.
 service SettlementService {
   rpc SettleTrade(SettleTradeRequest) returns (SettleTradeResponse);
-  rpc ApplyDeposit(DepositRequest) returns (DepositResponse);
-  rpc ApplyWithdrawal(WithdrawalRequest) returns (WithdrawalResponse);
+  rpc ApplyDeposit(ApplyDepositRequest) returns (ApplyDepositResponse);
+  rpc ApplyWithdrawal(ApplyWithdrawalRequest) returns (ApplyWithdrawalResponse);
 }
 
 // One immutable double-entry ledger row.
@@ -45,26 +44,26 @@ message SettleTradeResponse {
   repeated LedgerEntry entries = 2;
 }
 
-message DepositRequest {
+message ApplyDepositRequest {
   uint64 account_id = 1;
   string asset = 2; // e.g. "CASH", "STOCK:SYM"
   common.Decimal amount = 3;
   string reference = 4;
 }
 
-message DepositResponse {
+message ApplyDepositResponse {
   bool success = 1;
   repeated LedgerEntry entries = 2;
 }
 
-message WithdrawalRequest {
+message ApplyWithdrawalRequest {
   uint64 account_id = 1;
   string asset = 2;
   common.Decimal amount = 3;
   string reference = 4;
 }
 
-message WithdrawalResponse {
+message ApplyWithdrawalResponse {
   bool success = 1;
   string reason = 2;
   repeated LedgerEntry entries = 3;
