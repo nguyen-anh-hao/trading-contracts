@@ -1,0 +1,393 @@
+syntax = "proto3";
+
+package gateway;
+
+import "common/decimal.proto";
+import "common/enums.proto";
+
+option go_package = "github.com/exchange/trading-system/generated/go/gateway;gateway";
+option java_package = "com.exchange.gateway";
+option java_multiple_files = true;
+option java_outer_classname = "GatewayApiProto";
+
+// =============================================================================
+// Public API exposed by the API Gateway to clients (REST/WebSocket backed by
+// these gRPC definitions). Covers the 5 business groups described in
+// business.md: Treasury & Account, Order Execution, Market Data, Portfolio &
+// PnL, Incentives & Fees.
+// =============================================================================
+
+service GatewayService {
+  // --- 1. Treasury & Account ---
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
+  rpc CreateApiKey(CreateApiKeyRequest) returns (CreateApiKeyResponse);
+  rpc Deposit(DepositRequest) returns (DepositResponse);
+  rpc Withdraw(WithdrawRequest) returns (WithdrawResponse);
+  rpc GetBalances(GetBalancesRequest) returns (GetBalancesResponse);
+  rpc GetLedger(GetLedgerRequest) returns (GetLedgerResponse);
+
+  // --- 2. Order Execution & Lifecycle ---
+  rpc PlaceOrder(PlaceOrderRequest) returns (PlaceOrderResponse);
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse);
+  rpc BulkCancel(BulkCancelRequest) returns (BulkCancelResponse);
+  rpc ModifyOrder(ModifyOrderRequest) returns (ModifyOrderResponse);
+  rpc GetOpenOrders(GetOpenOrdersRequest) returns (GetOpenOrdersResponse);
+  rpc GetOrderHistory(GetOrderHistoryRequest) returns (GetOrderHistoryResponse);
+  rpc GetTrades(GetTradesRequest) returns (GetTradesResponse);
+
+  // --- 3. Market Data ---
+  rpc GetTicker(GetTickerRequest) returns (GetTickerResponse);
+  rpc GetOrderBookDepth(GetOrderBookDepthRequest) returns (GetOrderBookDepthResponse);
+  rpc GetTradesTape(GetTradesTapeRequest) returns (GetTradesTapeResponse);
+  rpc GetOHLCV(GetOHLCVRequest) returns (GetOHLCVResponse);
+
+  // --- 4. Portfolio & PnL ---
+  rpc GetPositions(GetPositionsRequest) returns (GetPositionsResponse);
+  rpc GetPnL(GetPnLRequest) returns (GetPnLResponse);
+  rpc GetBuyingPower(GetBuyingPowerRequest) returns (GetBuyingPowerResponse);
+
+  // --- 5. Incentives & Fees ---
+  rpc GetFeeTiers(GetFeeTiersRequest) returns (GetFeeTiersResponse);
+  rpc GetLeaderboard(GetLeaderboardRequest) returns (GetLeaderboardResponse);
+  rpc RedeemVoucher(RedeemVoucherRequest) returns (RedeemVoucherResponse);
+}
+
+// ---------------------------------------------------------------------------
+// 1. Treasury & Account
+// ---------------------------------------------------------------------------
+message CreateAccountRequest {
+  string name = 1;
+  string email = 2;
+}
+
+message CreateAccountResponse {
+  uint64 account_id = 1;
+}
+
+message ApiKey {
+  string api_key = 1;
+  string secret_key = 2;
+  repeated string permissions = 3; // read_only, trade, withdraw
+}
+
+message CreateApiKeyRequest {
+  uint64 account_id = 1;
+  repeated string permissions = 2;
+}
+
+message CreateApiKeyResponse {
+  ApiKey api_key = 1;
+}
+
+message DepositRequest {
+  uint64 account_id = 1;
+  string asset = 2; // "CASH" or "STOCK:<symbol>"
+  common.Decimal amount = 3;
+}
+
+message DepositResponse {
+  bool success = 1;
+}
+
+message WithdrawRequest {
+  uint64 account_id = 1;
+  string asset = 2;
+  common.Decimal amount = 3;
+}
+
+message WithdrawResponse {
+  bool success = 1;
+  string reason = 2;
+}
+
+message AssetBalance {
+  string asset = 1;
+  common.Decimal total = 2;
+  common.Decimal available = 3;
+  common.Decimal frozen = 4;
+}
+
+message GetBalancesRequest {
+  uint64 account_id = 1;
+}
+
+message GetBalancesResponse {
+  repeated AssetBalance balances = 1;
+}
+
+message GetLedgerRequest {
+  uint64 account_id = 1;
+  int64 start_time = 2;
+  int64 end_time = 3;
+}
+
+message GetLedgerResponse {
+  repeated LedgerEntryView entries = 1;
+}
+
+message LedgerEntryView {
+  uint64 entry_id = 1;
+  string asset = 2;
+  common.Decimal debit = 3;
+  common.Decimal credit = 4;
+  string reference = 5;
+  string reason = 6;
+  int64 timestamp_ns = 7;
+}
+
+// ---------------------------------------------------------------------------
+// 2. Order Execution & Lifecycle
+// ---------------------------------------------------------------------------
+message PlaceOrderRequest {
+  uint64 account_id = 1;
+  string symbol = 2;
+  common.OrderSide side = 3;
+  common.OrderType type = 4;
+  common.Decimal price = 5;
+  common.Decimal quantity = 6;
+  common.TimeInForce time_in_force = 7;
+  string client_order_id = 8;
+}
+
+message PlaceOrderResponse {
+  bool accepted = 1;
+  string reject_reason = 2;
+  uint64 order_id = 3;
+}
+
+message CancelOrderRequest {
+  uint64 account_id = 1;
+  uint64 order_id = 2;
+  string symbol = 3;
+}
+
+message CancelOrderResponse {
+  bool success = 1;
+  string reason = 2;
+}
+
+message BulkCancelRequest {
+  uint64 account_id = 1;
+  string symbol = 2;
+  common.OrderSide side = 3; // optional filter (UNSPECIFIED = all)
+}
+
+message BulkCancelResponse {
+  uint32 cancelled_count = 1;
+}
+
+message ModifyOrderRequest {
+  uint64 account_id = 1;
+  uint64 order_id = 2;
+  common.Decimal new_price = 3;
+  common.Decimal new_quantity = 4;
+}
+
+message ModifyOrderResponse {
+  bool success = 1;
+  uint64 new_order_id = 2;
+  string reason = 3;
+}
+
+message GetOpenOrdersRequest {
+  uint64 account_id = 1;
+  string symbol = 2; // optional
+}
+
+message GetOpenOrdersResponse {
+  repeated OrderView orders = 1;
+}
+
+message GetOrderHistoryRequest {
+  uint64 account_id = 1;
+  string symbol = 2;
+  common.OrderStatus status = 3; // optional filter
+  int64 start_time = 4;
+  int64 end_time = 5;
+}
+
+message GetOrderHistoryResponse {
+  repeated OrderView orders = 1;
+}
+
+message GetTradesRequest {
+  uint64 account_id = 1;
+  string symbol = 2;
+  uint64 order_id = 3; // optional
+}
+
+message GetTradesResponse {
+  repeated TradeView trades = 1;
+}
+
+message OrderView {
+  uint64 order_id = 1;
+  string symbol = 2;
+  common.OrderSide side = 3;
+  common.OrderType type = 4;
+  common.Decimal price = 5;
+  common.Decimal quantity = 6;
+  common.Decimal executed_quantity = 7;
+  common.Decimal leaves_quantity = 8;
+  common.OrderStatus status = 9;
+  int64 timestamp_ns = 10;
+}
+
+message TradeView {
+  uint64 trade_id = 1;
+  uint64 order_id = 2;
+  string symbol = 3;
+  common.Decimal price = 4;
+  common.Decimal quantity = 5;
+  common.Decimal fee = 6;
+  common.LiquidityRole role = 7;
+  int64 timestamp_ns = 8;
+}
+
+// ---------------------------------------------------------------------------
+// 3. Market Data
+// ---------------------------------------------------------------------------
+message Ticker {
+  string symbol = 1;
+  common.Decimal last_price = 2;
+  common.Decimal volume_24h = 3;
+  common.Decimal high = 4;
+  common.Decimal low = 5;
+}
+
+message GetTickerRequest {
+  string symbol = 1;
+}
+
+message GetTickerResponse {
+  Ticker ticker = 1;
+}
+
+message DepthLevel {
+  common.Decimal price = 1;
+  common.Decimal quantity = 2;
+}
+
+message GetOrderBookDepthRequest {
+  string symbol = 1;
+  uint32 depth = 2; // top N levels
+}
+
+message GetOrderBookDepthResponse {
+  string symbol = 1;
+  repeated DepthLevel bids = 2;
+  repeated DepthLevel asks = 3;
+}
+
+message GetTradesTapeRequest {
+  string symbol = 1;
+  uint32 limit = 2;
+}
+
+message GetTradesTapeResponse {
+  repeated TradeView trades = 1;
+}
+
+message Candle {
+  int64 timestamp = 1;
+  common.Decimal open = 2;
+  common.Decimal high = 3;
+  common.Decimal low = 4;
+  common.Decimal close = 5;
+  common.Decimal volume = 6;
+}
+
+message GetOHLCVRequest {
+  string symbol = 1;
+  string interval = 2; // 1s, 1m, 5m, 1h, 1d
+  uint32 limit = 3;
+}
+
+message GetOHLCVResponse {
+  repeated Candle candles = 1;
+}
+
+// ---------------------------------------------------------------------------
+// 4. Portfolio & PnL
+// ---------------------------------------------------------------------------
+message Position {
+  string symbol = 1;
+  common.Decimal available_quantity = 2;
+  common.Decimal pending_quantity = 3;
+  common.Decimal average_cost = 4;
+  common.Decimal market_price = 5;
+  common.Decimal unrealized_pnl = 6;
+}
+
+message GetPositionsRequest {
+  uint64 account_id = 1;
+}
+
+message GetPositionsResponse {
+  repeated Position positions = 1;
+}
+
+message GetPnLRequest {
+  uint64 account_id = 1;
+}
+
+message GetPnLResponse {
+  common.Decimal unrealized_pnl = 1;
+  common.Decimal realized_pnl = 2;
+}
+
+message GetBuyingPowerRequest {
+  uint64 account_id = 1;
+}
+
+message GetBuyingPowerResponse {
+  common.Decimal cash_balance = 1;
+  common.Decimal margin = 2;
+  common.Decimal buying_power = 3;
+  common.Decimal margin_ratio = 4;
+}
+
+// ---------------------------------------------------------------------------
+// 5. Incentives & Fees
+// ---------------------------------------------------------------------------
+message GetFeeTiersRequest {
+  uint64 account_id = 1;
+}
+
+message GetFeeTiersResponse {
+  common.Decimal volume_30d = 1;
+  string current_tier = 2;
+  common.Decimal maker_fee = 3;
+  common.Decimal taker_fee = 4;
+}
+
+message LeaderboardEntry {
+  uint64 account_id = 1;
+  string name = 2;
+  common.Decimal roi = 3;
+  common.Decimal volume = 4;
+  uint32 rank = 5;
+}
+
+message GetLeaderboardRequest {
+  int64 start_time = 1;
+  int64 end_time = 2;
+  uint32 limit = 3;
+}
+
+message GetLeaderboardResponse {
+  repeated LeaderboardEntry entries = 1;
+}
+
+message RedeemVoucherRequest {
+  uint64 account_id = 1;
+  string voucher_code = 2;
+}
+
+message RedeemVoucherResponse {
+  bool success = 1;
+  string reason = 2;
+  common.Decimal credited_amount = 3;
+}
+
+

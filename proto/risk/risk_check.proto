@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package risk;
+
+import "common/decimal.proto";
+import "common/enums.proto";
+
+option go_package = "github.com/exchange/trading-system/generated/go/risk;risk";
+option java_package = "com.exchange.risk";
+option java_multiple_files = true;
+option java_outer_classname = "RiskCheckProto";
+
+// RPC contract between API Gateway and the In-Memory Risk Engine.
+service RiskService {
+  // Pre-trade check: validates margin/buying-power and freezes funds.
+  rpc CheckOrder(CheckOrderRequest) returns (CheckOrderResponse);
+  // Reserve (freeze) funds for an accepted order.
+  rpc ReserveBalance(ReserveRequest) returns (ReserveResponse);
+  // Release frozen funds when an order is cancelled or reduced.
+  rpc ReleaseBalance(ReleaseRequest) returns (ReleaseResponse);
+  // Apply a settled execution to the shadow balances.
+  rpc ApplyTrade(ApplyTradeRequest) returns (ApplyTradeResponse);
+  // Read current balances for an account.
+  rpc GetBalances(GetBalancesRequest) returns (GetBalancesResponse);
+}
+
+message CheckOrderRequest {
+  uint64 account_id = 1;
+  string symbol = 2;
+  common.OrderSide side = 3;
+  common.OrderType type = 4;
+  common.Decimal price = 5;
+  common.Decimal quantity = 6;
+}
+
+message CheckOrderResponse {
+  bool approved = 1;
+  string reject_reason = 2;
+  common.Decimal buying_power = 3;
+}
+
+message ReserveRequest {
+  uint64 account_id = 1;
+  string symbol = 2;
+  common.OrderSide side = 3;
+  common.Decimal price = 4;
+  common.Decimal quantity = 5;
+}
+
+message ReserveResponse {
+  bool success = 1;
+  string reason = 2;
+}
+
+message ReleaseRequest {
+  uint64 account_id = 1;
+  string symbol = 2;
+  common.OrderSide side = 3;
+  common.Decimal price = 4;
+  common.Decimal quantity = 5;
+}
+
+message ReleaseResponse {
+  bool success = 1;
+}
+
+message ApplyTradeRequest {
+  uint64 account_id = 1;
+  string symbol = 2;
+  common.OrderSide side = 3;
+  common.Decimal price = 4;
+  common.Decimal quantity = 5;
+  common.Decimal fee = 6;
+}
+
+message ApplyTradeResponse {
+  bool success = 1;
+}
+
+message AssetBalance {
+  string asset = 1;
+  common.Decimal total = 2;
+  common.Decimal available = 3;
+  common.Decimal frozen = 4;
+}
+
+message GetBalancesRequest {
+  uint64 account_id = 1;
+}
+
+message GetBalancesResponse {
+  repeated AssetBalance balances = 1;
+}

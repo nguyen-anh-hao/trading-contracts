@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package ledger;
+
+import "common/decimal.proto";
+import "common/enums.proto";
+
+option go_package = "github.com/exchange/trading-system/generated/go/ledger;ledger";
+option java_package = "com.exchange.ledger";
+option java_multiple_files = true;
+option java_outer_classname = "SettlementProto";
+
+// Settlement / double-entry ledger contract consumed by the Settlement service.
+service SettlementService {
+  rpc SettleTrade(SettleTradeRequest) returns (SettleTradeResponse);
+  rpc ApplyDeposit(DepositRequest) returns (DepositResponse);
+  rpc ApplyWithdrawal(WithdrawalRequest) returns (WithdrawalResponse);
+}
+
+// One immutable double-entry ledger row.
+message LedgerEntry {
+  uint64 entry_id = 1;
+  uint64 account_id = 2;
+  string asset = 3;
+  common.Decimal debit = 4;   // amount leaving the account
+  common.Decimal credit = 5;  // amount entering the account
+  string reference = 6;       // e.g. trade_id, deposit_ref
+  string reason = 7;
+  int64 timestamp_ns = 8;
+}
+
+message SettleTradeRequest {
+  uint64 trade_id = 1;
+  string symbol = 2;
+  common.Decimal price = 3;
+  common.Decimal quantity = 4;
+  common.Decimal fee = 5;
+
+  uint64 buyer_account_id = 6;
+  uint64 seller_account_id = 7;
+}
+
+message SettleTradeResponse {
+  bool success = 1;
+  repeated LedgerEntry entries = 2;
+}
+
+message DepositRequest {
+  uint64 account_id = 1;
+  string asset = 2; // e.g. "CASH", "STOCK:SYM"
+  common.Decimal amount = 3;
+  string reference = 4;
+}
+
+message DepositResponse {
+  bool success = 1;
+  repeated LedgerEntry entries = 2;
+}
+
+message WithdrawalRequest {
+  uint64 account_id = 1;
+  string asset = 2;
+  common.Decimal amount = 3;
+  string reference = 4;
+}
+
+message WithdrawalResponse {
+  bool success = 1;
+  string reason = 2;
+  repeated LedgerEntry entries = 3;
+}

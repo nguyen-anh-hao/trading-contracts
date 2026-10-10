@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package engine;
+
+import "common/decimal.proto";
+import "common/enums.proto";
+
+option go_package = "github.com/exchange/trading-system/generated/go/engine;engine";
+option java_package = "com.exchange.engine";
+option java_multiple_files = true;
+option java_outer_classname = "ExecutionReportProto";
+
+// A single match/trade execution.
+message TradeExecuted {
+  uint64 trade_id = 1;
+  string symbol = 2;
+  common.Decimal price = 3;
+  common.Decimal quantity = 4;
+  common.Decimal fee = 5;
+  common.LiquidityRole role = 6;
+  int64 timestamp_ns = 7;
+
+  uint64 maker_order_id = 8;
+  uint64 taker_order_id = 9;
+  uint64 maker_account_id = 10;
+  uint64 taker_account_id = 11;
+}
+
+// Order accepted into the book.
+message OrderAccepted {
+  uint64 order_id = 1;
+  string symbol = 2;
+  common.OrderSide side = 3;
+  common.Decimal price = 4;
+  common.Decimal quantity = 5;
+  int64 timestamp_ns = 6;
+}
+
+// Order cancelled.
+message OrderCancelled {
+  uint64 order_id = 1;
+  string symbol = 2;
+  common.Decimal remaining_quantity = 3;
+  int64 timestamp_ns = 4;
+}
+
+// Full lifecycle report for an order.
+message ExecutionReport {
+  uint64 order_id = 1;
+  uint64 account_id = 2;
+  string client_order_id = 3;
+  string symbol = 4;
+  common.OrderSide side = 5;
+  common.OrderType type = 6;
+  common.Decimal price = 7;
+  common.Decimal quantity = 8;        // Original quantity
+  common.Decimal executed_quantity = 9;
+  common.Decimal leaves_quantity = 10;
+  common.Decimal average_price = 11;
+  common.OrderStatus status = 12;
+  common.LiquidityRole role = 13;
+  int64 timestamp_ns = 14;
+}

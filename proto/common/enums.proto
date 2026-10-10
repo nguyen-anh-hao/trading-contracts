@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/exchange/trading-system/generated/go/common;common";
+option java_package = "com.exchange.common";
+option java_multiple_files = true;
+option java_outer_classname = "EnumsProto";
+
+// Direction of an order.
+enum OrderSide {
+  ORDER_SIDE_UNSPECIFIED = 0;
+  ORDER_SIDE_BUY = 1;
+  ORDER_SIDE_SELL = 2;
+}
+
+// Kind of an order.
+enum OrderType {
+  ORDER_TYPE_UNSPECIFIED = 0;
+  ORDER_TYPE_LIMIT = 1;
+  ORDER_TYPE_MARKET = 2;
+}
+
+// Lifecycle state of an order.
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_NEW = 1;
+  ORDER_STATUS_PARTIALLY_FILLED = 2;
+  ORDER_STATUS_FILLED = 3;
+  ORDER_STATUS_CANCELLED = 4;
+  ORDER_STATUS_REJECTED = 5;
+}
+
+// How long an order stays active.
+enum TimeInForce {
+  TIME_IN_FORCE_UNSPECIFIED = 0;
+  TIME_IN_FORCE_GTC = 1; // Good Till Cancel
+  TIME_IN_FORCE_IOC = 2; // Immediate Or Cancel
+  TIME_IN_FORCE_FOK = 3; // Fill Or Kill
+}
+
+// Role of a participant in a single execution.
+enum LiquidityRole {
+  LIQUIDITY_ROLE_UNSPECIFIED = 0;
+  LIQUIDITY_ROLE_MAKER = 1;
+  LIQUIDITY_ROLE_TAKER = 2;
+}

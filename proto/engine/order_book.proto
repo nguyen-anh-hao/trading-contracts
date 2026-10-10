@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package engine;
+
+import "common/decimal.proto";
+import "common/enums.proto";
+
+option go_package = "github.com/exchange/trading-system/generated/go/engine;engine";
+option java_package = "com.exchange.engine";
+option java_multiple_files = true;
+option java_outer_classname = "OrderBookProto";
+
+// Payload of an order submitted to the Matching Engine.
+message Order {
+  uint64 order_id = 1;
+  uint64 account_id = 2;
+  string client_order_id = 3;
+  string symbol = 4;
+  common.OrderSide side = 5;
+  common.OrderType type = 6;
+  common.Decimal price = 7;
+  common.Decimal quantity = 8;
+  common.TimeInForce time_in_force = 9;
+  int64 timestamp_ns = 10;
+}
+
+// One price level of the order book (L2 depth).
+message PriceLevel {
+  common.Decimal price = 1;
+  common.Decimal quantity = 2;
+  uint32 order_count = 3;
+}
+
+// Full L2 snapshot for a symbol.
+message OrderBookSnapshot {
+  string symbol = 1;
+  repeated PriceLevel bids = 2;
+  repeated PriceLevel asks = 3;
+  int64 sequence = 4;
+  int64 timestamp_ns = 5;
+}

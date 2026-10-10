@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/exchange/trading-system/generated/go/common;common";
+option java_package = "com.exchange.common";
+option java_multiple_files = true;
+option java_outer_classname = "DecimalProto";
+
+// Fixed-point decimal used to prevent IEEE-754 floating point rounding errors.
+// Every monetary/financial value exchanged between C++, Go, Java and TS is
+// expressed as: value = units + nanos * 1e-9.
+message Decimal {
+  int64 units = 1; // Integer part (can be negative for signed values).
+  int32 nanos = 2; // Fractional part scaled to nanoseconds (0 .. 999_999_999).
+}

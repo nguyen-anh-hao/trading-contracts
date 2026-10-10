@@ -1,0 +1,23 @@
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/exchange/trading-system/generated/go
+plugins:
+  # Go
+  - remote: buf.build/protocolbuffers/go
+    out: generated/go
+    opt:
+      - paths=source_relative
+  # C++
+  - remote: buf.build/protocolbuffers/cpp
+    out: generated/cpp
+  # Java
+  - remote: buf.build/protocolbuffers/java
+    out: generated/java
+  # TypeScript
+  - remote: buf.build/protocolbuffers/es
+    out: generated/ts
+    opt:
+      - target=ts

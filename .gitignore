@@ -1,0 +1,9 @@
+# Generated code
+generated/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
