@@ -19,6 +19,8 @@ All changes here impact downstream services (Go, C++, Java, Node.js, TypeScript)
 
 All changes **MUST** pass strict linting and backwards compatibility checks via `buf`.
 
+**Kafka event contracts** live under `avro/` (Avro schemas + Confluent Schema Registry). See [`avro/README.md`](avro/README.md).
+
 ---
 
 ## 3. Quick Start (Contract Development)
